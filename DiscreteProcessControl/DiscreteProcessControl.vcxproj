@@ -149,7 +149,9 @@
   <ItemGroup>
     <ClInclude Include="ProblemChooser.h" />
     <ClInclude Include="RpqContainer.h" />
+    <ClInclude Include="RPQFileReader.h" />
     <ClInclude Include="RpqNode.h" />
+    <ClInclude Include="RpqPriorityQueue.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
@@ -157,7 +159,9 @@
     <ClCompile Include="DiscreteProcessControl.cpp" />
     <ClCompile Include="ProblemChooser.cpp" />
     <ClCompile Include="RpqContainer.cpp" />
+    <ClCompile Include="RPQFileReader.cpp" />
     <ClCompile Include="RpqNode.cpp" />
+    <ClCompile Include="RpqPriorityQueue.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

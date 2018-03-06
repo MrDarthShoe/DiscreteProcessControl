@@ -7,12 +7,16 @@ class RpqContainer
 {
 public:
 	RpqContainer();
+	RpqContainer(size_t size);
 	~RpqContainer();
 
 	std::vector<RpqNode>& getData() { return _data; }
-	void sort();
-	RpqNode& getMin() const;
-	RpqNode& getMax() const;
+
+	size_t size() { return _data.size(); }
+	
+	void addNode(RpqNode&& node);
+
+	void print();
 
 private:
 	std::vector<RpqNode> _data;

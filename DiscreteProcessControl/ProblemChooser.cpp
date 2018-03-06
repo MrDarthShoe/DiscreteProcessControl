@@ -1,80 +1,145 @@
 #include "stdafx.h"
 #include "ProblemChooser.h"
+
 #include <iostream>
+#include <string>
+#include <vector>
+#include <queue>
+#include <algorithm>
+#include "RPQFileReader.h"
+#include "RpqNode.h"
+#include "RpqPriorityQueue.h"
 
+using namespace std;
 
-ProblemChooser::ProblemChooser()
+void removeReadyTasks(RpqPriorityQueue<compare_r>& N, RpqPriorityQueue<compare_q>& G, int& t, RpqNode& e)
 {
-}
-
-
-ProblemChooser::~ProblemChooser()
-{
-}
-
-void ProblemChooser::solve(int number)
-{
-	switch (number)
+	while (N.size() && (N.top().getR() <= t))
 	{
-	case 1:
-		solveJackson();
-		break;
-
-	case 2:
-		solveSchrage();
-		break;
-
-
-	case 3:
-		solveSchrageWithDivision();
-		break;
-
-	case 4:
-		solveCalier();
-		break;
-	case 5:
-		solveDynamicWithWiTi();
-		break;
-
-	case 6:
-		solveNEH();
-		break;
-
-	case 7:
-		solveHarmonogram();
-		break;
-
-	default:
-		std::cout << "Problem not found by handler!\n";
-		break;
+		e = N.top();
+		G.push(N.top());
+		N.pop();
 	}
 }
 
-void ProblemChooser::solveJackson()
+
+ProblemChooser::ProblemChooser()
+	: _problem(0), _instance(1)
+{ }
+
+
+ProblemChooser::~ProblemChooser()
+{ }
+
+void ProblemChooser::printResult()
 {
+	cout << "Result is: " << solve() << "\n";
 }
 
-void ProblemChooser::solveSchrage()
+int ProblemChooser::solve()
 {
+	string filename("SCHRAGE" + to_string(_instance) + ".DAT");
+
+	switch (_problem)
+	{
+	case 1:
+		return solveJackson();
+	case 2:
+	{
+		cout << "Solving Schrage: \n";
+
+		RPQFileReader reader;
+		RpqContainer data;
+
+		reader.readFromFileToContainer(filename, data);
+		return solveSchrage(data); 
+	}
+	case 3:
+		return solveSchrageWithDivision();
+	case 4:
+		return solveCalier();
+	case 5:
+		return solveDynamicWithWiTi();
+	case 6:
+		return solveNEH();
+	case 7:
+		return solveHarmonogram();
+	default:
+		cout << "Problem not found by handler!\n";
+		return 0;
+	}
 }
 
-void ProblemChooser::solveSchrageWithDivision()
+int ProblemChooser::solveJackson()
 {
+	cout << "No jackson yet!\n";
+	return 0;
 }
 
-void ProblemChooser::solveCalier()
+int ProblemChooser::solveSchrage(RpqContainer& data)
 {
+
+	//Proper Schrage Alrorithm help variables:
+	int t=0, k=0, Cmax=0;
+	RpqNode e;
+	RpqContainer pi(data.size());
+	RpqPriorityQueue<compare_r> N;
+	RpqPriorityQueue<compare_q> G;
+	
+	for (auto iterator : data.getData())
+	{
+		N.push(iterator);
+	}
+
+	while (G.size() || N.size())
+	{
+		removeReadyTasks(N, G, t, e);
+		if (!G.size())
+		{
+			t = N.top().getR();
+			removeReadyTasks(N, G, t, e);
+		}
+		e = G.top();
+		G.pop();
+
+		pi.getData()[k] = e;
+		t += e.getP();
+		Cmax = max(Cmax, t + e.getQ());
+		k++;
+	}
+	return Cmax;
 }
 
-void ProblemChooser::solveDynamicWithWiTi()
+int ProblemChooser::solveSchrageWithDivision()
 {
+	return 0;
 }
 
-void ProblemChooser::solveNEH()
+int ProblemChooser::solveCalier()
 {
+	return 0;
 }
 
-void ProblemChooser::solveHarmonogram()
+int ProblemChooser::solveDynamicWithWiTi()
 {
+	return 0;
+}
+
+int ProblemChooser::solveNEH()
+{
+	return 0;
+}
+
+int ProblemChooser::solveHarmonogram()
+{
+	return 0;
+}
+
+void ProblemChooser::selectProblem()
+{
+	cout << "Enter problem number:\n";
+	cin >> _problem;
+	cout << "Enter instance number:\n";
+	cin >> _instance;
 }
 

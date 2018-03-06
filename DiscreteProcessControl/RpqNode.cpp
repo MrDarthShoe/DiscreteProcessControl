@@ -3,15 +3,13 @@
 
 
 RpqNode::RpqNode()
-{
-}
+{ }
 
-RpqNode::RpqNode(int r, int p)
-	: _r(r), _p(p)
-{
-}
+RpqNode::RpqNode(int r, int p, int q)
+	: _r(r), _p(p), _q(q)
+{ }
 
 
 RpqNode::~RpqNode()
-{
-}
+{ }
+

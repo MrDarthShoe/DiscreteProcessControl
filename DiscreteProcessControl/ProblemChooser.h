@@ -1,17 +1,25 @@
 #pragma once
+
+#include "RpqContainer.h"
+
 class ProblemChooser
 {
 public:
 	ProblemChooser();
 	~ProblemChooser();
-	void solve(int number);
+	void selectProblem();
+	void printResult();
 private:
-	void solveJackson();
-	void solveSchrage();
-	void solveSchrageWithDivision();
-	void solveCalier();
-	void solveDynamicWithWiTi();
-	void solveNEH();
-	void solveHarmonogram();
+	int solve();
+	int solveJackson();
+	int solveSchrage(RpqContainer& data);
+	int solveSchrageWithDivision();
+	int solveCalier();
+	int solveDynamicWithWiTi();
+	int solveNEH();
+	int solveHarmonogram();
+
+	int _problem;
+	int _instance;
 };
 
