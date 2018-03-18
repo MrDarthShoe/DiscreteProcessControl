@@ -13,7 +13,7 @@ private:
 	int solve();
 	int solveJackson();
 	int solveSchrage(RpqContainer& data);
-	int solveSchrageWithDivision();
+	int solveSchrageWithDivision(RpqContainer& data);
 	int solveCalier();
 	int solveDynamicWithWiTi();
 	int solveNEH();

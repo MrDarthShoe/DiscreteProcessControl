@@ -12,16 +12,6 @@
 
 using namespace std;
 
-void removeReadyTasks(RpqPriorityQueue<compare_r>& N, RpqPriorityQueue<compare_q>& G, int& t, RpqNode& e)
-{
-	while (N.size() && (N.top().getR() <= t))
-	{
-		e = N.top();
-		G.push(N.top());
-		N.pop();
-	}
-}
-
 
 ProblemChooser::ProblemChooser()
 	: _problem(0), _instance(1)
@@ -38,7 +28,7 @@ void ProblemChooser::printResult()
 
 int ProblemChooser::solve()
 {
-	string filename("SCHRAGE" + to_string(_instance) + ".DAT");
+	string filename(to_string(_problem) + "\\" + "SCHRAGE" + to_string(_instance) + ".DAT");
 
 	switch (_problem)
 	{
@@ -55,7 +45,15 @@ int ProblemChooser::solve()
 		return solveSchrage(data); 
 	}
 	case 3:
-		return solveSchrageWithDivision();
+	{
+		cout << "Solving Schrage with division: \n";
+
+		RPQFileReader reader;
+		RpqContainer data;
+
+		reader.readFromFileToContainer(filename, data);
+		return solveSchrageWithDivision(data);
+	}
 	case 4:
 		return solveCalier();
 	case 5:
@@ -78,13 +76,22 @@ int ProblemChooser::solveJackson()
 
 int ProblemChooser::solveSchrage(RpqContainer& data)
 {
-
 	//Proper Schrage Alrorithm help variables:
 	int t=0, k=0, Cmax=0;
 	RpqNode e;
 	RpqContainer pi(data.size());
 	RpqPriorityQueue<compare_r> N;
 	RpqPriorityQueue<compare_q> G;
+
+	auto removeReadyTasks = [&](RpqPriorityQueue<compare_r>& N, RpqPriorityQueue<compare_q>& G, int& t, RpqNode& e)
+	{
+		while (N.size() && (N.top().getR() <= t))
+		{
+			e = N.top();
+			G.push(N.top());
+			N.pop();
+		}
+	};
 	
 	for (auto iterator : data.getData())
 	{
@@ -101,18 +108,72 @@ int ProblemChooser::solveSchrage(RpqContainer& data)
 		}
 		e = G.top();
 		G.pop();
-
+		
 		pi.getData()[k] = e;
 		t += e.getP();
+		//t + qe to termin dostarczenia zadania e (di)
+		//Ce to t+pe  (termin zakoñczenia zadania)
+		//Se t przed dodaniem pe (termin rozpoczêcia zadania)
 		Cmax = max(Cmax, t + e.getQ());
 		k++;
 	}
 	return Cmax;
 }
 
-int ProblemChooser::solveSchrageWithDivision()
+int ProblemChooser::solveSchrageWithDivision(RpqContainer& data)
 {
-	return 0;
+	//Proper Schrage Alrorithm help variables:
+	int t = 0, Cmax = 0;
+	RpqNode e;
+	RpqNode l;
+	RpqPriorityQueue<compare_r> N;
+	RpqPriorityQueue<compare_q> G;
+
+	auto removeReadyTasks = [&](RpqPriorityQueue<compare_r>& N, RpqPriorityQueue<compare_q>& G, int& t, RpqNode& e, RpqNode& l)
+	{
+		while (N.size() && (N.top().getR() <= t))
+		{
+			e = N.top();
+			G.push(N.top());
+			N.pop();
+
+			if (e.getQ() > l.getQ())
+			{
+				l.setP(t - e.getR());
+				t = e.getR();
+				if (l.getP() > 0) G.push(l);
+			}
+		}
+	};
+
+	for (auto iterator : data.getData())
+	{
+		N.push(iterator);
+	}
+
+	l.setR(0);
+	l.setP(0);
+	l.setQ(99999);
+
+	while (G.size() || N.size())
+	{
+		removeReadyTasks(N, G, t, e, l);
+		if (!G.size())
+		{
+			t = N.top().getR();
+			removeReadyTasks(N, G, t, e, l);
+		}
+		e = G.top();
+		G.pop();
+
+		t += e.getP();
+		//t + qe to termin dostarczenia zadania e (di)
+		//Ce to t+pe  (termin zakoñczenia zadania)
+		//Se t przed dodaniem pe (termin rozpoczêcia zadania)
+		Cmax = max(Cmax, t + e.getQ());
+		l = e;
+	}
+	return Cmax;
 }
 
 int ProblemChooser::solveCalier()
