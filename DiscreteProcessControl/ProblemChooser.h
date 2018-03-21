@@ -1,6 +1,9 @@
 #pragma once
 
-#include "RpqContainer.h"
+#include <vector>
+#include "RpqNode.h"
+
+typedef std::vector <RpqNode> RpqContainer;
 
 class ProblemChooser
 {
@@ -14,7 +17,7 @@ private:
 	int solveJackson();
 	int solveSchrage(RpqContainer& data);
 	int solveSchrageWithDivision(RpqContainer& data);
-	int solveCalier();
+	int solveCalier(RpqContainer & data, int UB);
 	int solveDynamicWithWiTi();
 	int solveNEH();
 	int solveHarmonogram();

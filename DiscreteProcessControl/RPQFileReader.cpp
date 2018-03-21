@@ -27,7 +27,7 @@ void RPQFileReader::readFromFileToContainer(string& filename, RpqContainer& cont
 		for (int i = 0; i < cases; ++i)
 		{
 			input_file >> r >> p >> q;
-			container.addNode( RpqNode(r, p, q) );
+			container.push_back( RpqNode(r, p, q) );
 		}
 		input_file.close();
 	} 

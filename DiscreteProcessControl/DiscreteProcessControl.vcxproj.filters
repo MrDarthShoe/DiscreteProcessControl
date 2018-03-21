@@ -24,9 +24,6 @@
     <ClInclude Include="ProblemChooser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RpqContainer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="RpqNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -45,9 +42,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ProblemChooser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RpqContainer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RpqNode.cpp">
