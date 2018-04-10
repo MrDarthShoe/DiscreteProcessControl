@@ -209,6 +209,21 @@ int ProblemChooser::solveCalier(RpqContainer& data, int UB)
 			}
 			Cmax = max(Cmax, time + node.getQ());
 		}
+		/*
+		Cmax = max(Cmax, time + node.getQ());
+
+		if(Cmax <= time + node.getQ());
+		{
+		Cmax = time + node.getQ());
+		b=t;
+		}
+		
+		//Zapamietywac c oraz identyfikator zadania
+		c termin zakonczenia powiekszyc o czas dostarczenia
+		blok ab 
+		
+		*/
+
 
 		//calculate a
 		time = permutation[0].getR();
