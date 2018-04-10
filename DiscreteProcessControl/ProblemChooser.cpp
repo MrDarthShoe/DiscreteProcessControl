@@ -184,10 +184,10 @@ int ProblemChooser::solveSchrageWithDivision(RpqContainer& data)
 	return Cmax;
 }
 
-int ProblemChooser::solveCalier(RpqContainer& data, int UB)
+int ProblemChooser::solveCalier(RpqContainer& data, int& UB)
 {
 	// Lambda for computing block
-	auto block = [&](const RpqContainer& permutation, int CMAX) -> std::tuple<int,int,int>
+	auto block = [&](const RpqContainer& permutation, int& CMAX) -> std::tuple<int,int,int>
 	{
 		int a;
 		int b;
@@ -233,9 +233,7 @@ int ProblemChooser::solveCalier(RpqContainer& data, int UB)
 			{
 				a = i;
 			}
-			
 			Cmax = max(Cmax, time + node.getQ());
-
 		}
 
 		//calculate c
@@ -275,29 +273,31 @@ int ProblemChooser::solveCalier(RpqContainer& data, int UB)
 
 	for (int i = c + 1; i <= b; ++i)
 	{
-		if (PI[i].getR() < ri)
-			ri = PI[i].getR();
+		/*if (PI[i].getR() < ri)
+			ri = PI[i].getR();*/
+		ri = min(ri, PI[i].getR());
 
-		if (PI[i].getQ() < qi)
-			qi = PI[i].getQ();
+		//if (PI[i].getQ() < qi)
+		//	qi = PI[i].getQ();
+		qi = min(qi, PI[i].getQ());
 
 		pi += PI[i].getP();
 	}
 
 	int r_temp = PI[c].getR();
 	PI[c].setR(max(PI[c].getR(), ri + pi));
-	int lb = solveSchrageWithDivision(PI);
+	int LB = solveSchrageWithDivision(PI);
 
-	if (lb < UB)
+	if (LB < UB)
 		solveCalier(PI, UB);
 
 	PI[c].setR(r_temp);
 
 	int q_temp = PI[c].getQ();
 	PI[c].setQ(max(PI[c].getQ(), qi + pi));
-	lb = solveSchrageWithDivision(PI);
+	LB = solveSchrageWithDivision(PI);
 
-	if (lb < UB)
+	if (LB < UB)
 		solveCalier(PI, UB);
 
 	PI[c].setQ(q_temp);
@@ -311,7 +311,7 @@ int ProblemChooser::solveCalier(RpqContainer& data, int UB)
 		time += node.getP();
 		cMax = max(cMax, time + node.getQ());
 	}
-
+	data = PI_optimal;
 	return cMax;
 }
 

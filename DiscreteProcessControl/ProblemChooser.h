@@ -17,7 +17,7 @@ private:
 	int solveJackson();
 	int solveSchrage(RpqContainer& data);
 	int solveSchrageWithDivision(RpqContainer& data);
-	int solveCalier(RpqContainer & data, int UB);
+	int solveCalier(RpqContainer & data, int& UB);
 	int solveDynamicWithWiTi();
 	int solveNEH();
 	int solveHarmonogram();
