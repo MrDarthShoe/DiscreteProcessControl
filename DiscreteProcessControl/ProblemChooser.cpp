@@ -7,12 +7,34 @@
 #include <queue>
 #include <tuple>
 #include <algorithm>
+#include <limits>
 #include "RPQFileReader.h"
 #include "RpqNode.h"
 #include "RpqPriorityQueue.h"
 
 using namespace std;
 
+
+
+int eval(const RpqContainer& permutation)
+{
+    int time = permutation[0].getR();
+    int cMax = 0;
+    RpqNode pi(0, 0, 0);
+
+    size_t n = permutation.size();
+    for (int i = 0; i < n; i++)
+    {
+        RpqNode temp = permutation[i];
+
+        time = max(time, temp.getR());
+
+        //pi = temp;
+        time += temp.getP();
+        cMax = max(cMax, time + temp.getQ());
+    }
+    return cMax;
+};
 
 ProblemChooser::ProblemChooser()
 	: _problem(0), _instance(1)
@@ -44,7 +66,7 @@ int ProblemChooser::solve()
 	{
 		cout << "Solving Schrage: \n";
 
-		return solveSchrage(data); 
+		return eval(solveSchrage(data)); 
 	}
 	case 3:
 	{
@@ -56,11 +78,9 @@ int ProblemChooser::solve()
 	{
 		cout << "Solving Carlier: \n";
 
-		int result_schrage = solveSchrage(data); 
-		int result_carlier = solveCalier(data, result_schrage);
-
-		if (result_carlier == -1) return result_schrage;
-		return result_carlier;
+        int Cmax = numeric_limits<int>::max();
+        solveCalier(data, Cmax);
+        return Cmax;
 	}
 	case 5:
 		return solveDynamicWithWiTi();
@@ -80,7 +100,7 @@ int ProblemChooser::solveJackson()
 	return 0;
 }
 
-int ProblemChooser::solveSchrage(RpqContainer& data)
+RpqContainer ProblemChooser::solveSchrage(const RpqContainer& data)
 {
 	//Proper Schrage Alrorithm help variables:
 	int t=0, k=0, Cmax=0;
@@ -124,11 +144,12 @@ int ProblemChooser::solveSchrage(RpqContainer& data)
 		k++;
 	}
 	//Temporary workaround:
-	data = pi;
-	return Cmax;
+	//data = pi;
+	//return Cmax;
+    return pi;
 }
 
-int ProblemChooser::solveSchrageWithDivision(RpqContainer& data)
+int ProblemChooser::solveSchrageWithDivision(const RpqContainer& data)
 {
 	//Proper Schrage Alrorithm help variables:
 	int t = 0, Cmax = 0;
@@ -161,7 +182,7 @@ int ProblemChooser::solveSchrageWithDivision(RpqContainer& data)
 
 	l.setR(0);
 	l.setP(0);
-	l.setQ(99999);
+	l.setQ(numeric_limits<int>::max());
 
 	while (G.size() || N.size())
 	{
@@ -184,150 +205,144 @@ int ProblemChooser::solveSchrageWithDivision(RpqContainer& data)
 	return Cmax;
 }
 
-int ProblemChooser::solveCalier(RpqContainer& data, int& UB)
+
+
+void ProblemChooser::solveCalier(RpqContainer& data, int& UB)
 {
-	// Lambda for computing block
-	auto block = [&](const RpqContainer& permutation, int& CMAX) -> std::tuple<int,int,int>
-	{
-		int a;
-		int b;
-		int c = -1;
-		int Cmax = 0;
-		int time = permutation[0].getR();
+    // Lambda for computing block
+    auto block = [&](const RpqContainer& permutation) -> std::tuple<int, int, int>
+    {
+        int a = -1;
+        int b = -1;
+        int c = -1;
+        int Cmax = 0;
+        int CMAX = eval(permutation);
+        int time = permutation[0].getR();
+        RpqNode pi(0, 0, 0);
 
-		//calculate b
-		for (int i = 0; i < permutation.size(); ++i)
-		{
-			auto node = permutation[i];
-			time = max(time, node.getR());
+        size_t n = permutation.size();
 
-			time += node.getP();
+        for (int i = 0; i < n; i++)
+        {
+            RpqNode temp = permutation[i];
 
-			if ((time + node.getQ()) == CMAX)
-			{
-				b = i;
-			}
-			Cmax = max(Cmax, time + node.getQ());
-		}
-		/*
-		Cmax = max(Cmax, time + node.getQ());
+            time = max(time, temp.getR());
 
-		if(Cmax <= time + node.getQ());
-		{
-		Cmax = time + node.getQ());
-		b=t;
-		}
-		
-		//Zapamietywac c oraz identyfikator zadania
-		c termin zakonczenia powiekszyc o czas dostarczenia
-		blok ab 
-		
-		*/
+            time += temp.getP();
+
+            if ((time + permutation[i].getQ()) == CMAX)
+            {
+                b = i;                                // ostatni zwiêksza CMAX
+            }
+            Cmax = max(Cmax, time + temp.getQ());
+        }
+
+        time = permutation[0].getR();
+        Cmax = 0;
+
+        for (int i = 0; i < n; i++)
+        {
+            RpqNode temp = permutation[i];
+            time = max(time, temp.getR());
+            time += temp.getP();
+
+            if (a == -1)
+            {
+                int summ = 0;
+                for (int j = i; j <= b; j++)
+                {
+                    summ += (permutation[j].getP());
+                }
+                summ += permutation[b].getQ();
+                if (CMAX == permutation[i].getR() + summ)
+                    a = i;
+            }
+            Cmax = max(Cmax, time + temp.getQ());
+        }
+
+        time = permutation[0].getR();
+        Cmax = 0;
+
+        for (int i = a; i <= b; i++)
+        {
+            if (permutation[i].getQ() < permutation[b].getQ())
+                c = i;
+        }
+
+        //std::cout << "a " << a << " b " << b << " c " << c << "\n";
+        return std::make_tuple(a, b, c);
+    };
+
+        /*
+        Cmax = max(Cmax, time + node.getQ());
+
+        if(Cmax <= time + node.getQ());
+        {
+        Cmax = time + node.getQ());
+        b=t;
+        }
+        /*
+        //Zapamietywac c oraz identyfikator zadania
+        c termin zakonczenia powiekszyc o czas dostarczenia
+        blok ab
 
 
-		//calculate a
-		time = permutation[0].getR();
-		Cmax = 0;
+        a,b,c pozycje w permutacji schrage
+        b pozycja zadania dla kórego termin zakoñæzenia o powiêkszony o czqs dostarczenia jest równy cmax. Bierzemy ten co na prawo!
 
-		for (int i = 0; i < permutation.size(); ++i)
-		{
-			auto node = permutation[i];
-			time = max(time, node.getR());
+        r(a) + suma czasów zadañ na pozycjach od (a do b) + q daje cmax najbardziej na lewo albo o najmniejszym momencie rozpoczecia
 
-			time += node.getP();
+        c zadanie pomiêdzy a i b o czasie dostarczenia mniejszym od zadania b je¿eli jest kilka to zadanie które najbli¿ej b lub na prawo najbardziej
 
-			int sum = 0;
+        referencyjne q ma mniejsze od b
+        przesuwanie referencyjnego w lewo lub w prawo daje szansê na polepszenie fcji celu
+        */
 
-			for (int j = i; j <= b; ++j)
-			{
-				sum += permutation[j].getP();
-			}
-			sum += permutation[b].getQ();
+    RpqContainer PI = solveSchrage(data);
+    int U = eval(PI);
 
-			if ((node.getR() + sum) == CMAX)
-			{
-				a = i;
-			}
-			Cmax = max(Cmax, time + node.getQ());
-		}
+    if (U < UB)
+        UB = U;
 
-		//calculate c
-		time = permutation[0].getR();
-		Cmax = 0;
+    auto tup = block(PI);
+    int b = std::get<1>(tup);
+    int c = std::get<2>(tup);
 
-		for (int i = a; i <= b; ++i)
-		{
-			if (permutation[i].getQ() < permutation[b].getQ())
-			{
-				c = i;
-			}
-		}
-		cout << "a " << a << " b " << b << " c " << c << endl;
-		return std::make_tuple(a, b, c);
-	}; //End of "block" lambda
+    if (c == -1)
+        return;
 
-	// Start of Carlier algorithm:
+    int rprim = numeric_limits<int>::max();
+    int qprim = numeric_limits<int>::max();
+    int pprim = 0;
 
-	int U = solveSchrage(data);
-	//I said earlier that this is TEMPORARY workaround- no judging!
-	RpqContainer PI = data;
-	RpqContainer PI_optimal;
-	if (U < UB)
-	{
-		UB = U;
-		PI_optimal = PI;
-	}
+    for (int i = c + 1; i <= b; i++)
+    {
+        if (PI[i].getR() < rprim)
+            rprim = PI[i].getR();
 
-	auto bl = block(PI, U);
-	int b = std::get<1>(bl);
-	int c = std::get<2>(bl);
+        if (PI[i].getQ() < qprim)
+            qprim = PI[i].getQ();
 
-	if (c == -1) return -1;
+        pprim += PI[i].getP();
+    }
 
-	int ri = 9999999, qi = 9999999, pi = 0;
+    int r_temp = PI[c].getR();
+    PI[c].setR(max(PI[c].getR(), rprim + pprim));
+    int LB = solveSchrageWithDivision(PI);
 
-	for (int i = c + 1; i <= b; ++i)
-	{
-		/*if (PI[i].getR() < ri)
-			ri = PI[i].getR();*/
-		ri = min(ri, PI[i].getR());
+    if (LB < UB)
+        solveCalier(PI, UB);
 
-		//if (PI[i].getQ() < qi)
-		//	qi = PI[i].getQ();
-		qi = min(qi, PI[i].getQ());
+    PI[c].setR(r_temp);
 
-		pi += PI[i].getP();
-	}
+    int q_temp = PI[c].getQ();
+    PI[c].setQ(max(PI[c].getQ(), qprim + pprim));
+    LB = solveSchrageWithDivision(PI);
 
-	int r_temp = PI[c].getR();
-	PI[c].setR(max(PI[c].getR(), ri + pi));
-	int LB = solveSchrageWithDivision(PI);
+    if (LB < UB)
+        solveCalier(PI, UB);
 
-	if (LB < UB)
-		solveCalier(PI, UB);
-
-	PI[c].setR(r_temp);
-
-	int q_temp = PI[c].getQ();
-	PI[c].setQ(max(PI[c].getQ(), qi + pi));
-	LB = solveSchrageWithDivision(PI);
-
-	if (LB < UB)
-		solveCalier(PI, UB);
-
-	PI[c].setQ(q_temp);
-
-	int time = PI[0].getR();
-	int cMax = 0;
-
-	for (auto node : PI)
-	{
-		time = max(time, node.getR());
-		time += node.getP();
-		cMax = max(cMax, time + node.getQ());
-	}
-	data = PI_optimal;
-	return cMax;
+    PI[c].setQ(q_temp);
 }
 
 int ProblemChooser::solveDynamicWithWiTi()
@@ -352,4 +367,3 @@ void ProblemChooser::selectProblem()
 	cout << "Enter instance number:\n";
 	cin >> _instance;
 }
-

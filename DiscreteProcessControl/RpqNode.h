@@ -6,13 +6,13 @@ public:
 	RpqNode(int r, int p, int q);
 	~RpqNode();
 
-	int getR() const { return _r; }
+	const int getR() const { return _r; }
 	void setR(const int r) { _r = r; }
 
-	int getP() const { return _p; }
+	const int getP() const { return _p; }
 	void setP(const int p) { _p = p; }
 
-	int getQ() const { return _q; }
+	const int getQ() const { return _q; }
 	void setQ(const int q) { _q = q; }
 
 private:
