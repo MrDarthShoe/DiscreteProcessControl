@@ -85,7 +85,35 @@ int ProblemChooser::solve()
 	case 5:
 		return solveDynamicWithWiTi();
 	case 6:
-		return solveNEH();
+
+		cout << "Solving NEH: \n";
+		vector<vector<int>> input;
+		vector<int> process;
+		
+		cin >> N;
+		cin >> M;
+		for (int i = 0; i < N; i++)
+		{
+			std::vector<int> a;
+			input.push_back(a);
+			int summ = 0;
+			for (int j = 0; j < M; j++)
+			{
+				int temp;
+				cin >> temp;
+				summ += temp;
+				input[i].push_back(temp);
+			}
+			process.push_back(summ);
+		}
+
+		
+		sort(process, input);
+
+		// NEH
+		int c = NEH(input);
+		cout << "Cmax: " << c << std::endl;
+		//return solveNEH();
 	case 7:
 		return solveHarmonogram();
 	default:
@@ -93,6 +121,40 @@ int ProblemChooser::solve()
 		return 0;
 	}
 }
+
+
+void ProblemChooser::write_vector(vector<vector<int>> v)
+{
+	for (unsigned int i = 0; i < v.size(); i++)
+	{
+		for (unsigned int j = 0; j < v[0].size(); j++)
+		{
+			cout << v[i][j] << " \t";
+		}
+		cout << "\n";
+	}
+}
+
+
+void ProblemChooser::copy_vector(vector<vector<int>> old, vector<vector<int>> &n)
+{
+	for (unsigned int i = 0; i < n.size(); i++)
+		n[i].clear();
+	n.clear();
+
+	for (unsigned int i = 0; i < old.size(); i++)
+	{
+		vector<int> l;
+		for (unsigned int j = 0; j < old[0].size(); j++)
+		{
+			l.push_back(old[i][j]);
+		}
+		n.push_back(l);
+	}
+}
+
+
+
 
 int ProblemChooser::solveJackson()
 {
@@ -210,7 +272,7 @@ int ProblemChooser::solveSchrageWithDivision(const RpqContainer& data)
 void ProblemChooser::solveCalier(RpqContainer& data, int& UB)
 {
     // Lambda for computing block
-    auto block = [&](const RpqContainer& permutation) -> std::tuple<int, int, int>
+    auto block = [&](const RpqContainer& permutation) -> tuple<int, int, int>
     {
         int a = -1;
         int b = -1;
@@ -269,8 +331,8 @@ void ProblemChooser::solveCalier(RpqContainer& data, int& UB)
                 c = i;
         }
 
-        //std::cout << "a " << a << " b " << b << " c " << c << "\n";
-        return std::make_tuple(a, b, c);
+        //cout << "a " << a << " b " << b << " c " << c << "\n";
+        return make_tuple(a, b, c);
     };
 
         /*
@@ -305,8 +367,8 @@ void ProblemChooser::solveCalier(RpqContainer& data, int& UB)
         UB = U;
 
     auto tup = block(PI);
-    int b = std::get<1>(tup);
-    int c = std::get<2>(tup);
+    int b = get<1>(tup);
+    int c = get<2>(tup);
 
     if (c == -1)
         return;
@@ -350,9 +412,163 @@ int ProblemChooser::solveDynamicWithWiTi()
 	return 0;
 }
 
-int ProblemChooser::solveNEH()
+void ProblemChooser::sort(vector<int> &len, vector<vector<int>> &job)
 {
-	return 0;
+	for (unsigned int i = 0; i < len.size(); i++)
+	{
+		for (unsigned int j = 0; j < len.size(); j++)
+		{
+			if (i != j)
+			{
+				if (len[i] < len[j])
+				{
+					vector<int> t;
+					int temp;
+					temp = len[j];
+					t = job[j];
+					len[j] = len[i];
+					job[j] = job[i];
+					len[i] = temp;
+					job[i] = t;
+				}
+			}
+		}
+	}
+}
+
+int ProblemChooser::calculate(const vector<vector<int>> &job, vector<vector<int>> &times)
+{
+	
+	for (unsigned int i = 0; i < times.size(); i++)
+		times[i].clear();
+	times.clear();
+
+	
+	int n = job.size();
+	int m = job[0].size();
+
+	
+	for (int i = 0; i < n; i++)
+	{
+		vector<int> a;
+		times.push_back(a);
+		for (int j = 0; j < m; j++)
+		{
+			int temp = 0;
+			times[i].push_back(temp);
+		}
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < m; j++)
+		{
+			if (j == 0 && i == 0)
+				times[i][j] = job[i][j];
+			else if (j == 0)
+				times[i][j] = job[i][j] + times[i - 1][j];
+			else if (i == 0) 
+			{
+				times[i][j] = job[i][j] + times[i][j - 1];
+			}
+			else
+			{
+				if (times[i][j - 1] > times[i - 1][j])
+					times[i][j] = job[i][j] + times[i][j - 1];
+				else
+					times[i][j] = job[i][j] + times[i - 1][j];
+			}
+		}
+	}
+	return times[n - 1][m - 1];
+}
+
+
+void ProblemChooser::insert_elem(vector<vector<int>> &v, unsigned int poz, vector<int> elem)
+{
+	vector<vector<int>>::iterator it = v.begin();
+	while (poz--)
+		it++;
+
+	v.insert(it, elem);
+}
+
+
+int ProblemChooser::find_best_insert(const vector<vector<int>> list, vector<int> job, vector<vector<int>> &result)
+{
+	int cmax = 99999;
+	int n = list.size();
+	
+	for (int i = 0; i <= n; i++)
+	{
+		vector<vector<int>> data; 
+		vector<vector<int>> calculated_data; 
+		copy_vector(list, data);
+
+		
+		insert_elem(data, i, job);
+		
+		int c = calculate(data, calculated_data);
+		if (c < cmax)
+		{
+			cmax = c;
+			copy_vector(data, result);
+		}
+	}
+	return cmax; 
+}
+
+
+
+int ProblemChooser::solveNEH(vector<vector<int>> list)
+{
+
+	/*
+	
+	b³ad 1-4% wzgledem rozw optymalnego
+	faza wstepna: lista zadan posortowane po prio
+	priorytet suma operacji wykonywania na kazdej z maszyn
+	faza iteracyjna zasadnicza: n-iteracji
+	generowanie k permutacji czesciowych w kazdej iteracji 
+	wybieramy permutacje ktora generuje najmniejszy cmax z kazdej iteracji
+
+
+	
+	
+	*/
+
+
+	int c = 0;
+	vector<vector<int>> best_permutation;
+	
+	int size1 = list.size();
+	vector<int> job;
+	for (unsigned int l = 0; l < list[size1 - 1].size(); l++)
+		job.push_back(list[size1 - 1][l]);
+	list.pop_back();
+	
+	best_permutation.push_back(job);
+	job.clear();
+	int n = list.size(); 
+
+	while (n--)
+	{
+		
+		for (unsigned int l = 0; l < list[n].size(); l++)
+			job.push_back(list[n][l]);
+		list.pop_back();
+
+		vector<vector<int>> result;
+		c = find_best_insert(best_permutation, job, result);
+		copy_vector(result, best_permutation);
+		job.clear();
+	}
+
+	return c;
+
+
+
+	//return 0;
 }
 
 int ProblemChooser::solveHarmonogram()

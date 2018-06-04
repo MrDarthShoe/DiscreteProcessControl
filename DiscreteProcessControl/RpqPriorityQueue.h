@@ -57,3 +57,10 @@ struct compare_q {
 		return (left.getQ()) < (right.getQ());
 	}
 };
+
+struct compare_p {
+	bool operator() (const RpqNode& left, const RpqNode& right)
+	{
+		return (left.getP()) < (right.getP());
+	}
+};

@@ -19,8 +19,15 @@ private:
 	int solveSchrageWithDivision(const RpqContainer& data);
 	void solveCalier(RpqContainer & data, int& UB);
 	int solveDynamicWithWiTi();
-	int solveNEH();
+	int solveNEH(vector<vector<int>> list);
 	int solveHarmonogram();
+	void write_vector(vector<vector<int>> v);
+	void copy_vector(vector<vector<int>> old, vector<vector<int>> &n);
+	void sort(vector<int> &len, vector<vector<int>> &job);
+	int calculate(const vector<vector<int>> &job, vector<vector<int>> &times);
+	void insert_elem(vector<vector<int>> &v, unsigned int poz, vector<int> elem);
+	int find_best_insert(const vector<vector<int>> list, vector<int> job, vector<vector<int>> &result);
+
 
 	int _problem;
 	int _instance;
